@@ -25,10 +25,10 @@ class ContentController extends Controller
     }
     public function getCategory(Request $request) {
 
-        // DB::connection()->enableQueryLog();
-        $categories = Category::orderBy('priority', 'asc')
-            ->where('parent_id', '<=', 0)
-            ->with('children')
+        DB::connection()->enableQueryLog();
+        $categories = Category::orderBy('parent_id', 'asc')
+            ->where('disabled', '=', false)
+            ->orderBy('priority', 'asc')
             ->get();
 
         if ($categories) {
@@ -36,10 +36,10 @@ class ContentController extends Controller
             $cat = [];
             foreach($categories as $category) {
                 $cat[$category->category] = $category->toArray();
-                $cat[$category->category]['children'] = $this->findChildren($category);
+                // $cat[$category->category]['children'] = $this->findChildren($category);
             }
             // var_dump($cat);
-            // $sql = DB::getQueryLog();
+            $sql = DB::getQueryLog();
             return response($cat, 200);
 
         } else {
