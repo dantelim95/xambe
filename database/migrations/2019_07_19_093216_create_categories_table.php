@@ -18,7 +18,7 @@ class CreateCategoriesTable extends Migration
             $table->integer('parent_id');
             $table->string('category');
             $table->string('description');
-            $table->string('priority');
+            $table->integer('priority');
             $table->string('icon');
             $table->boolean('disabled');
             $table->timestamps();

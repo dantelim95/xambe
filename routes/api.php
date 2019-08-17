@@ -27,9 +27,13 @@ Route::group(['middleware' => ['json.response']], function () {
     Route::middleware('auth:api')->group(function () {
         Route::get('/logout', 'Api\AuthController@logout')->name('logout');
         Route::get('/category', 'Api\ContentController@getCategory')->name('category.api');
-        Route::get('/user', function (Request $request) {
-            return $request->user();
-        });
+        Route::get('/profile', 'Api\ContentController@getProfile')->name('profile.api');
+        Route::post('/profile', 'Api\ContentController@saveProfile')->name('profile.api');
+        Route::get('/user', 'Api\ContentController@getUser')->name('user.api');
+        // Route::get('/user', function (Request $request) {
+        //    return $request->user();
+        // });
     });
 
 });
+
