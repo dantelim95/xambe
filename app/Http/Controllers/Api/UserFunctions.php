@@ -9,7 +9,7 @@ trait UserFunctions {
         $res = DB::table('users')
                 ->join('profiles', 'users.id', '=', 'profiles.user_id', '')
                 ->select('users.id', 'users.email', 'users.created_at', 'users.updated_at'
-                    , 'profiles.first_name', 'profiles.last_name', 'profiles.birth_date', 'profiles.gender',
+                    , 'profiles.first_name', 'profiles.last_name', 'profiles.birth_date', 'profiles.gender', 'profiles.picture',
                     'profiles.id as profile_id')
                 ->where('users.id', '=', $id);
         $user = $res->get()->first();

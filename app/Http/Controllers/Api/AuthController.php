@@ -62,14 +62,11 @@ class AuthController extends Controller
                 // return response($response, 200);
                 return $this->user_init($user->id, $token);
             } else {
-                $response = [ 'error' => "Password mismatch" ];
-                return response($response, 422);
+                return response("Password mismatch", 422);
             }
 
         } else {
-            // $response = [ 'error' => 'User does not exist' ];
-            $response = [ 'error' => "Password mismatch" ];
-            return response($response, 422);
+            return response("Password mismatch", 422);
         }
 
     }

@@ -64,6 +64,12 @@ return [
             'url' => env('AWS_URL'),
         ],
 
+        'user' => [
+            'driver' => 'local',
+            'root' => storage_path('app/user'),
+            'url' => env('APP_URL').'/user',
+            'visibility' => 'public',
+        ],
     ],
 
 ];

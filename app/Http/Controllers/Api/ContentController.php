@@ -10,6 +10,9 @@ use App\Profile;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\Facades\Image;
 
 class ContentController extends Controller
 {
@@ -68,35 +71,62 @@ class ContentController extends Controller
     public function saveProfile(Request $request) {
 
         $s = $request->all();
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make($s, [
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
-            'birth_date' => 'required|date|date_format:Y-m-d',
+            'birth_date' => 'required|integer|',
             'gender' => 'required|integer|min:0|max:2',
         ]);
 
         if ($validator->fails())
         {
             // return respon/registerse(['errors'=>$validator->errors()->all()], 422);
-            return response(['result'=>'error', 'msg'=>$validator->errors()->all()], 422);
+            return response(['msg'=>$validator->errors()->all()], 422);
         }
 
-        if(isset($s['user_id'])) {
+        if(isset($s['user_id']) && $s['user_id'] != -1) {
 
+            $id1 = $s['user_id'];
+            $id2 = Auth::user()->id;
             if($s['user_id'] != Auth::user()->id) {
 
-                return response(['result'=>'error', 'msg'=>['Unauthorized']], 422);
+                return response(['msg'=>'Unauthorized'], 422);
             }
         } else {
 
             $s['user_id'] = Auth::user()->id;
         }
+        if(isset($s['picture']) && !empty($s['picture'])) {
+            $img = base64_decode($s['picture']);
+            $dir = public_path('user/'. Auth::user()->id);
+            if(!file_exists($dir))
+                File::MakeDirectory($dir, 0755, true);
+            $fn = uniqid(rand(), true) . '.png';
+            $path = public_path('user/'. Auth::user()->id .'/' . $fn);
+
+            $ipath = Image::make($img)->resize(300, 300)->save($path);
+
+            $s['picture'] = 'user/' . Auth::user()->id . '/' . $fn;
+        } else {
+            unset($s['picture']);
+        }
         DB::connection()->enableQueryLog();
-        $profile = Profile::updateOrCreate(['user_id' => Auth::user()->id], $s);
+        $d = [
+            'first_name' => $s['first_name']
+            , 'last_name' => $s['last_name']
+            , 'gender' => $s['gender']
+            , 'birth_date' => $s['birth_date']
+        ];
+        if(isset($s['picture']) && !empty($s['picture']))
+            $d['picture'] = $s['picture'];
+
+        $profile = Profile::updateOrCreate(['user_id' => Auth::user()->id], $d);
+
+        $profile = $request->user()->profile()->first();
         $sql = DB::getQueryLog();
 
         $a = $profile->toArray();
-        $response = ['result'=>'success', 'msg' => $profile->toJson(JSON_PRETTY_PRINT)];
+        $response = $profile->toJson(JSON_PRETTY_PRINT);
 
         return response($response, 200);
 
