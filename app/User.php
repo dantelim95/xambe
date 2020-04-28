@@ -45,4 +45,8 @@ class User extends Authenticatable
     public function addresses() {
         return $this->hasMany('App\Address', 'user_id');
     }
+
+    public function merchant() {
+        return $this->hasOne('App\Merchant', 'user_id');
+    }
 }

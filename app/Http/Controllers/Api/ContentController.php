@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 
 use App\Category;
 use App\Profile;
+use App\Merchant;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -54,28 +55,30 @@ class ContentController extends Controller
         }
 
     }
-    public function getProfile(Request $request) {
 
-        $profile = $request->user()->profile()->first();
-
-        if ($profile) {
-            return response($profile, 200);
-
-        } else {
-            $response = null;
-            return response($response, 422);
-        }
-
+    public function getUser(Request $request) {
+        $user = $request->user();
+        return $this->user_init($request->user()->id, '');
     }
 
-    public function saveProfile(Request $request) {
+    public function saveMerchant(Request $request) {
 
         $s = $request->all();
         $validator = Validator::make($s, [
-            'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'birth_date' => 'required|integer|',
-            'gender' => 'required|integer|min:0|max:2',
+            'name' => 'required|string|max:100',
+            'reg_num' => 'required|string|max:100',
+            'description' => 'required|string|max:500',
+            'address1' => 'required|string|max:100',
+            'address2' => 'nullable|string|max:100',
+            'postcode' => 'required|string|max:100',
+            'city' => 'required|string|max:100',
+            'state' => 'required|string|max:100',
+            'country' => 'required|string|max:100',
+            'phone_num' => 'required|string|max:100',
+            'fax_num' => 'required|string|max:100',
+            'mobile_num' => 'required|string|max:100',
+            'website' => 'required|string|max:100',
+            'is_fixed' => 'required|boolean',
         ]);
 
         if ($validator->fails())
@@ -112,17 +115,28 @@ class ContentController extends Controller
         }
         DB::connection()->enableQueryLog();
         $d = [
-            'first_name' => $s['first_name']
-            , 'last_name' => $s['last_name']
-            , 'gender' => $s['gender']
-            , 'birth_date' => $s['birth_date']
+            'user_id' => $s['user_id']
+            , 'name' => $s['name']
+            , 'reg_num' => $s['reg_num']
+            , 'description' => $s['description']
+            , 'address1' => $s['address1']
+            , 'address2' => $s['address2']
+            , 'postcode' => $s['postcode']
+            , 'city' => $s['city']
+            , 'state' => $s['state']
+            , 'country' => $s['country']
+            , 'phone_num' => $s['phone_num']
+            , 'fax_num' => $s['fax_num']
+            , 'mobile_num' => $s['mobile_num']
+            , 'website' => $s['website']
+            , 'is_fixed' => $s['is_fixed']
         ];
         if(isset($s['picture']) && !empty($s['picture']))
             $d['picture'] = $s['picture'];
 
-        $profile = Profile::updateOrCreate(['user_id' => Auth::user()->id], $d);
+        $profile = Merchant::updateOrCreate(['user_id' => Auth::user()->id], $d);
 
-        $profile = $request->user()->profile()->first();
+        $profile = $request->user()->merchant()->first();
         $sql = DB::getQueryLog();
 
         $a = $profile->toArray();
@@ -130,10 +144,5 @@ class ContentController extends Controller
 
         return response($response, 200);
 
-    }
-
-    public function getUser(Request $request) {
-        $user = $request->user();
-        return $this->user_init($request->user()->id, '');
     }
 }
