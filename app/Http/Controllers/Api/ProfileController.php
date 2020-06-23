@@ -8,6 +8,11 @@ use App\Http\Controllers\Controller;
 use App\User;
 use App\Profile;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\Facades\Image;
 
 
 class ProfileController extends Controller
@@ -56,8 +61,8 @@ class ProfileController extends Controller
         if(isset($s['user_id']) && $s['user_id'] != -1) {
 
             $id1 = $s['user_id'];
-            $id2 = Auth::user()->id;
-            if($s['user_id'] != Auth::user()->id) {
+            $id2 = $request->user()->id;
+            if($id1 != $id2) {
 
                 $msg_type = 'array';
                 $msg = [ 'User is unauthorized' ];
@@ -66,10 +71,10 @@ class ProfileController extends Controller
             }
         } else {
 
-            $s['user_id'] = Auth::user()->id;
+            $s['user_id'] = $request->user()->id;
         }
-        if(isset($s['picture']) && !empty($s['picture'])) {
-            $img = base64_decode($s['picture']);
+        if(isset($s['picture_b64']) && !empty($s['picture_b64'])) {
+            $img = base64_decode($s['picture_b64']);
             $dir = public_path('user/'. Auth::user()->id);
             if(!file_exists($dir))
                 File::MakeDirectory($dir, 0755, true);
@@ -92,7 +97,7 @@ class ProfileController extends Controller
         if(isset($s['picture']) && !empty($s['picture']))
             $d['picture'] = $s['picture'];
 
-        $profile = Profile::updateOrCreate(['user_id' => Auth::user()->id], $d);
+        $profile = Profile::updateOrCreate(['user_id' => $request->user()->id], $d);
 
         $profile = $request->user()->profile()->first();
         $sql = DB::getQueryLog();
