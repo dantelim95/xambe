@@ -49,4 +49,8 @@ class User extends Authenticatable
     public function merchant() {
         return $this->hasOne('App\Merchant', 'user_id');
     }
+
+    public function adsitems() {
+        return $this->hasMany('App\AdsItem', 'user_id');
+    }
 }
