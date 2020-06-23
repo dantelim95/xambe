@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Facades\Image;
+use App\Country;
+use App\State;
+use App\City;
 
 class ContentController extends Controller
 {
@@ -144,5 +147,51 @@ class ContentController extends Controller
 
         return response($response, 200);
 
+    }
+
+    public function getInit(Request $request) {
+
+        $init = [];
+
+        try {
+            $countries = Country::get(['id', 'name', 'code']);
+            $_countries = [];
+            foreach($countries as $c) {
+                array_push($_countries, $c);
+                // $_countries = $c;
+                $_states = $c->states;
+                $c['states'] = $_states->toArray();
+                foreach($_states as $s)
+                {
+                    $_cities = $s->cities;
+                    $s['cities'] = $_cities->toArray();
+                }
+            }
+            $init['countries'] = $_countries;
+        } catch(ModelNotFoundException $e)
+        {
+        }
+
+        try {
+            $categories = Category::get(['id', 'parent_id', 'title', 'description', 'priority', 'icon', 'disabled']);
+            $init['categories'] = $categories;
+        } catch(ModelNotFoundException $e)
+        {
+        }
+
+
+        if ($init != null) {
+
+            $msg_type = 'init';
+            $msg = $init;
+            $response = ['result' => 'success', 'msg_type' => $msg_type, 'msg' => json_encode($msg)];
+            return response($response, 200);
+        } else {
+            $msg_type = 'array';
+            $msg = ["Address not found."];
+            $response = ['result'=>'error', 'msg_type' => $msg_type, 'msg' => json_encode($msg)];
+            return response($response, 404);
+
+        }
     }
 }
