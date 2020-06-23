@@ -41,7 +41,7 @@ class AuthController extends Controller
             $msg_type = "array";
             $msg = $validator->errors()->all();
             $response = ['result'=>'error', 'msg_type' => $msg_type, 'msg' => json_encode($msg)];
-            return response($response);
+            return response($response, 422);
         }
 
         $request['password']=\Hash::make($request['password']);
@@ -88,7 +88,7 @@ class AuthController extends Controller
             $msg_type = 'array';
             $msg = [ "User email not found" ];
             $response = ['result'=>'error', 'msg_type' => $msg_type, 'msg' => json_encode($msg)];
-            return response($response, 422);
+            return response($response, 404);
         }
 
     }
@@ -123,7 +123,7 @@ class AuthController extends Controller
             $msg_type = 'array';
             $msg = [ "User email not found" ];
             $response = ['result'=>'error', 'msg_type' => $msg_type, 'msg' => json_encode($msg)];
-            return response($response, 422);
+            return response($response, 404);
         }
 
     }
